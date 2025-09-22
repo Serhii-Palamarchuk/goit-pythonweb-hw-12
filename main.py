@@ -148,11 +148,11 @@ async def health_check():
     # Overall status
     services = health_status["services"].values()
     healthy_services = [
-        s for s in services
-        if s.startswith("healthy") or s.startswith("configured")
+        s for s in services if s.startswith("healthy") or s.startswith("configured")
     ]
     unhealthy_services = [
-        s for s in services
+        s
+        for s in services
         if s.startswith("unhealthy") or s.startswith("not configured")
     ]
 
