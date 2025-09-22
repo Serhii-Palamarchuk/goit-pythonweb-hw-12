@@ -70,6 +70,8 @@ def read_root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint for deployment monitoring"""
+    from src.config import settings
+    
     health_status = {
         "status": "healthy",
         "message": "Contacts API is running",
@@ -98,12 +100,11 @@ async def health_check():
 
     # Check Redis connection
     try:
-        import redis.asyncio as redis
-        from src.config import settings
+        import redis.asyncio as redis_client
 
-        redis_client = redis.from_url(settings.redis_url)
-        await redis_client.ping()
-        await redis_client.close()
+        redis_conn = redis_client.from_url(settings.redis_url)
+        await redis_conn.ping()
+        await redis_conn.close()
         health_status["services"]["redis"] = "healthy"
     except Exception as e:
         health_status["services"]["redis"] = f"unhealthy: {str(e)[:50]}"
@@ -111,8 +112,6 @@ async def health_check():
 
     # Check Email configuration
     try:
-        from src.config import settings
-
         if (
             settings.mail_username
             and settings.mail_password
@@ -125,7 +124,8 @@ async def health_check():
             import ssl
 
             context = ssl.create_default_context()
-            with smtplib.SMTP(settings.mail_server, settings.mail_port) as server:
+            with smtplib.SMTP(settings.mail_server,
+                              settings.mail_port) as server:
                 server.starttls(context=context)
                 server.login(settings.mail_username, settings.mail_password)
             health_status["services"]["email"] = "healthy"
@@ -137,8 +137,6 @@ async def health_check():
 
     # Check Cloudinary configuration
     try:
-        from src.config import settings
-
         if (
             settings.cloudinary_name
             and settings.cloudinary_api_key
