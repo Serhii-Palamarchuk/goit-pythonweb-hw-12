@@ -1,0 +1,70 @@
+[tool.poetry]
+name = "contacts-api"
+version = "1.0.0"
+description = "REST API for managing contacts built with FastAPI and SQLAlchemy"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+sqlalchemy = "^2.0.23"
+psycopg2-binary = "^2.9.9"
+alembic = "^1.12.1"
+pydantic = "^2.5.0"
+python-multipart = "^0.0.6"
+requests = "^2.32.5"
+python-dotenv = "^1.1.1"
+bcrypt = "^4.0.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+cloudinary = "^1.41.0"
+aiofiles = "^24.1.0"
+fastapi-limiter = "^0.1.5"
+redis = "^5.0.0"
+fastapi-mail = "^1.4.1"
+setuptools = "<81.0.0"
+pillow = "^11.3.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+black = "^23.11.0"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+httpx = "^0.28.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

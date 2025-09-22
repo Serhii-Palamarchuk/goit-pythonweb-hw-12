@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Email Confirmation</title>
+</head>
+
+<body>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2>Welcome to Contacts API, {{username}}!</h2>
+        <p>Thank you for signing up. Please click the button below to confirm your email address:</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{{host}}api/auth/confirmed_email/{{token}}" style="background-color: #007bff; color: white; padding: 12px 30px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;">
+                Confirm Email
+            </a>
+        </div>
+
+        <p>If you didn't create an account, you can safely ignore this email.</p>
+
+        <p>Best regards,<br>Contacts API Team</p>
+    </div>
+</body>
+
+</html>
