@@ -71,7 +71,7 @@ def read_root():
 async def health_check():
     """Health check endpoint for deployment monitoring"""
     from src.config import settings
-    
+
     health_status = {
         "status": "healthy",
         "message": "Contacts API is running",
@@ -124,8 +124,7 @@ async def health_check():
             import ssl
 
             context = ssl.create_default_context()
-            with smtplib.SMTP(settings.mail_server,
-                              settings.mail_port) as server:
+            with smtplib.SMTP(settings.mail_server, settings.mail_port) as server:
                 server.starttls(context=context)
                 server.login(settings.mail_username, settings.mail_password)
             health_status["services"]["email"] = "healthy"
