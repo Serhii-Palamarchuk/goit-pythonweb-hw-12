@@ -119,19 +119,13 @@ async def health_check():
             and settings.mail_server
             and settings.mail_port
         ):
-            # Try to create SMTP connection
-            import smtplib
-            import ssl
-
-            context = ssl.create_default_context()
-            with smtplib.SMTP(settings.mail_server, settings.mail_port) as server:
-                server.starttls(context=context)
-                server.login(settings.mail_username, settings.mail_password)
-            health_status["services"]["email"] = "healthy"
+            # Just check if all email settings are configured
+            # Don't try to connect to avoid production issues
+            health_status["services"]["email"] = "configured"
         else:
             health_status["services"]["email"] = "not configured"
     except Exception as e:
-        health_status["services"]["email"] = f"unhealthy: {str(e)[:50]}"
+        health_status["services"]["email"] = f"config error: {str(e)[:30]}"
         health_status["status"] = "degraded"
 
     # Check Cloudinary configuration
@@ -141,28 +135,26 @@ async def health_check():
             and settings.cloudinary_api_key
             and settings.cloudinary_api_secret
         ):
-            # Try to connect to Cloudinary
-            import cloudinary
-            import cloudinary.api
-
-            cloudinary.config(
-                cloud_name=settings.cloudinary_name,
-                api_key=settings.cloudinary_api_key,
-                api_secret=settings.cloudinary_api_secret,
-            )
-            # Test connection by getting account info
-            cloudinary.api.ping()
-            health_status["services"]["cloudinary"] = "healthy"
+            # Just check if all Cloudinary settings are configured
+            # Don't try to connect to avoid production issues
+            health_status["services"]["cloudinary"] = "configured"
         else:
             health_status["services"]["cloudinary"] = "not configured"
     except Exception as e:
-        health_status["services"]["cloudinary"] = f"unhealthy: {str(e)[:50]}"
+        error_msg = f"config error: {str(e)[:30]}"
+        health_status["services"]["cloudinary"] = error_msg
         health_status["status"] = "degraded"
 
     # Overall status
     services = health_status["services"].values()
-    healthy_services = [s for s in services if s.startswith("healthy")]
-    unhealthy_services = [s for s in services if s.startswith("unhealthy")]
+    healthy_services = [
+        s for s in services
+        if s.startswith("healthy") or s.startswith("configured")
+    ]
+    unhealthy_services = [
+        s for s in services
+        if s.startswith("unhealthy") or s.startswith("not configured")
+    ]
 
     if len(unhealthy_services) == 0:
         if len(healthy_services) >= 1:  # At least database should be healthy
