@@ -1,79 +1,41 @@
-# 🚀 Деплой Contacts API
+# 🚀 Quick Deploy Guide
 
-## ✅ Готово до розгортання!
+## 🌐 Render.com (Recommended)
 
-Проект повністю налаштований з усіма необхідними файлами.
-
-## 🌐 Рекомендований спосіб: Render.com
-
-### Переваги:
-- 🆓 Безкоштовний план
-- 🔄 Автодеплой з GitHub  
-- 🗄️ Вбудовані PostgreSQL і Redis
-- ⚡ Автоматичне налаштування через `render.yaml`
-
-### Швидкий деплой:
-
-**1. Завантажте на GitHub:**
+**1. Push to GitHub:**
 ```bash
-git add .
-git commit -m "Ready for deployment"
-git push origin main
+git add . && git commit -m "Deploy" && git push
 ```
 
-**2. Деплой на Render:**
-- Йдіть на [render.com](https://render.com)
-- Зареєструйтеся через GitHub
-- "New +" → "Web Service" → оберіть репозиторій
-- Render автоматично використає `render.yaml`! ✨
+**2. Deploy on Render:**
+- Go to [render.com](https://render.com) → Register with GitHub
+- "New +" → "Web Service" → Select repo
+- Render auto-uses `render.yaml` ✨
 
-**3. Налаштуйте email (опціонально):**
+**3. Optional Environment Variables:**
 ```
-MAIL_USERNAME=ваш.email@gmail.com
-MAIL_PASSWORD=пароль-програми-gmail
-MAIL_FROM=ваш.email@gmail.com
+# Email (for verification)
+MAIL_USERNAME=your.email@gmail.com
+MAIL_PASSWORD=app-password
+MAIL_FROM=your.email@gmail.com
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
+
+# Cloudinary (for avatars)
+CLOUDINARY_NAME=your_name
+CLOUDINARY_API_KEY=key
+CLOUDINARY_API_SECRET=secret
 ```
 
-💡 **Примітка**: Без email конфігурації буде попередження `MAIL_FROM not configured`, але API працює нормально!
+**Done!** Your API: `https://your-app.onrender.com`
 
-**4. Cloudinary для аватарів (опціонально):**
-```
-CLOUDINARY_NAME=ваше_ім'я
-CLOUDINARY_API_KEY=ключ
-CLOUDINARY_API_SECRET=секрет
-```
+## 🧪 Test Endpoints:
+- Health: `/health`
+- Docs: `/docs`
+- Register: `POST /api/auth/signup`
 
-**Готово!** Ваш API буде доступний за адресою:
-`https://ваше-ім'я.onrender.com`
-
-## 🧪 Перевірка деплою:
-
-- Health check: `/health`
-- API документація: `/docs` 
-- Реєстрація: `POST /auth/signup`
-- Логін: `POST /auth/login`
-
-## 🐳 Альтернатива: Docker
-
+## 🐳 Docker Alternative:
 ```bash
-# Локальний тест
 docker-compose up --build
-
-# Перевірка
 curl http://localhost:8000/health
 ```
-
-## 🔧 Що включено:
-
-- ✅ JWT auth з refresh токенами
-- ✅ Redis кешування  
-- ✅ PostgreSQL база даних
-- ✅ Email верифікація
-- ✅ Завантаження аватарів
-- ✅ Rate limiting
-- ✅ Health monitoring
-- ✅ Role-based доступ
-
-**Все готово для продакшену!** 🎯
