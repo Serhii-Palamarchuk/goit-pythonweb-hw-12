@@ -48,6 +48,7 @@ class Token(BaseModel):
     """Schema for JWT token response."""
 
     access_token: str
+    refresh_token: str
     token_type: str
 
 
@@ -55,6 +56,12 @@ class TokenData(BaseModel):
     """Schema for token payload data."""
 
     username: Optional[str] = None
+
+
+class RefreshTokenRequest(BaseModel):
+    """Schema for refresh token request."""
+
+    refresh_token: str
 
 
 class RequestEmail(BaseModel):

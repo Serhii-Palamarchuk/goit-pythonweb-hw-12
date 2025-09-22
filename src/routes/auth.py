@@ -22,12 +22,15 @@ from src.schemas.users import (
     UserCreate,
     UserResponse,
     Token,
+    RefreshTokenRequest,
     RequestEmail,
     PasswordResetRequest,
     PasswordReset,
 )
 from src.services.auth import (
     create_access_token,
+    create_refresh_token,
+    get_refresh_token_data,
     get_current_user,
     verify_password,
     get_email_from_token,
@@ -106,13 +109,55 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create access token
+    # Create access and refresh tokens
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+    refresh_token = create_refresh_token(data={"sub": user.username})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
+
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(
+    refresh_request: RefreshTokenRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Refresh access token using refresh token.
+
+    Validates the provided refresh token and returns new access and refresh tokens.
+    """
+    # Validate refresh token
+    token_data = get_refresh_token_data(refresh_request.refresh_token)
+
+    # Get user from database
+    user_repo = get_user_repo(db)
+    user = await user_repo.get_user_by_email(token_data["sub"])
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    # Generate new tokens
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    new_refresh_token = create_refresh_token(data={"sub": user.username})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer",
+    }
 
 
 @router.get("/confirmed_email/{token}")

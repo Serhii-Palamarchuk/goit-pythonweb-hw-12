@@ -114,6 +114,67 @@ def create_password_reset_token(data: dict):
     return token
 
 
+def create_refresh_token(data: dict):
+    """
+    Create a JWT refresh token.
+
+    Args:
+        data (dict): Data to encode in the token
+
+    Returns:
+        str: Encoded JWT refresh token
+    """
+    to_encode = data.copy()
+    # 7 days expiry for refresh token
+    expire = datetime.utcnow() + timedelta(days=7)
+    to_encode.update(
+        {"iat": datetime.utcnow(), "exp": expire, "scope": "refresh_token"}
+    )
+    token = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    return token
+
+
+def get_refresh_token_data(token: str):
+    """
+    Validate and decode refresh token.
+
+    Args:
+        token (str): JWT refresh token
+
+    Returns:
+        dict: Token payload data
+
+    Raises:
+        HTTPException: If token is invalid or expired
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(
+            token, settings.secret_key, algorithms=[settings.algorithm]
+        )
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+
+        # Check if this is a refresh token
+        if payload.get("scope") != "refresh_token":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid scope for token",
+            )
+
+        return {"sub": email}
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid token"
+        )
+
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
