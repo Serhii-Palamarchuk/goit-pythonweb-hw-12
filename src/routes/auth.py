@@ -18,14 +18,25 @@ from src.config import settings
 from src.database.db import get_db
 from src.database.models import User
 from src.repository.users import get_user_repo
-from src.schemas.users import UserCreate, UserResponse, Token, RequestEmail
+from src.schemas.users import (
+    UserCreate,
+    UserResponse,
+    Token,
+    RequestEmail,
+    PasswordResetRequest,
+    PasswordReset,
+)
 from src.services.auth import (
     create_access_token,
     get_current_user,
     verify_password,
     get_email_from_token,
+    create_password_reset_token,
+    verify_password_reset_token,
+    get_password_hash,
+    check_admin_role,
 )
-from src.services.email import send_verification_email_robust
+from src.services.email import send_verification_email_robust, send_password_reset_email
 from src.services.cloudinary import cloudinary_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -174,4 +185,106 @@ async def update_avatar_user(
     # Update user avatar in database
     user_repo = get_user_repo(db)
     user = await user_repo.update_avatar(current_user.email, avatar_url)
+    return user
+
+
+@router.post("/request-password-reset")
+async def request_password_reset(
+    body: PasswordResetRequest,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """
+    Request password reset email.
+
+    Sends a password reset email to the user if the email exists in the system.
+    Always returns success message for security reasons.
+    """
+    user_repo = get_user_repo(db)
+    user = await user_repo.get_user_by_email(body.email)
+
+    if user:
+        # Create password reset token
+        reset_token = create_password_reset_token(data={"sub": user.email})
+
+        # Send password reset email
+        background_tasks.add_task(
+            send_password_reset_email,
+            user.email,
+            user.username,
+            reset_token,
+            str(request.base_url),
+        )
+
+    # Always return success message for security
+    return {"message": "If the email exists, a password reset link has been sent."}
+
+
+@router.post("/reset-password")
+async def reset_password(
+    body: PasswordReset,
+    db: Session = Depends(get_db),
+):
+    """
+    Reset user password using token.
+
+    Validates the reset token and updates the user's password.
+    """
+    # Verify the reset token
+    email = await verify_password_reset_token(body.token)
+
+    # Get user by email
+    user_repo = get_user_repo(db)
+    user = await user_repo.get_user_by_email(email)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid reset token"
+        )
+
+    # Update password using repository
+    success = await user_repo.update_password(email, body.new_password)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to update password"
+        )
+
+    return {"message": "Password has been reset successfully"}
+
+
+@router.patch("/avatar", response_model=UserResponse)
+async def update_avatar_user_admin_only(
+    file: UploadFile = File(...),
+    current_user: User = Depends(check_admin_role),
+    db: Session = Depends(get_db),
+):
+    """
+    Update user avatar (Admin only).
+
+    Only administrators can update their avatar using this endpoint.
+    Regular users should use the general avatar update endpoint.
+    """
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file type. Only JPEG and PNG are allowed.",
+        )
+
+    # Upload to Cloudinary with admin folder
+    avatar_url = cloudinary_service.upload_image(file, folder="admin_avatars")
+    if not avatar_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Could not upload avatar"
+        )
+
+    # Update user avatar in database
+    user_repo = get_user_repo(db)
+    user = await user_repo.update_avatar(current_user.email, avatar_url)
+
+    # Invalidate user cache
+    from src.services.redis_cache import redis_service
+
+    await redis_service.invalidate_user_cache(user.email)
+
     return user

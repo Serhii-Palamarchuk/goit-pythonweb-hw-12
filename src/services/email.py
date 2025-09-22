@@ -227,3 +227,76 @@ async def send_simple_verification_email(email: EmailStr, username: str, host: s
     except Exception as err:
         logger.error(f"Simple email failed: {err}")
         return False
+
+
+async def send_password_reset_email(
+    email: EmailStr, username: str, reset_token: str, base_url: str
+) -> bool:
+    """
+    Send password reset email to user.
+
+    Args:
+        email (EmailStr): User's email address
+        username (str): User's username
+        reset_token (str): Password reset token
+        base_url (str): Base URL of the application
+
+    Returns:
+        bool: True if email sent successfully, False otherwise
+    """
+    if not email_config:
+        if not init_email_config():
+            logger.error("Email not configured, cannot send password reset email")
+            return False
+
+    try:
+        # Check rate limiting
+        global last_email_sent
+        if last_email_sent:
+            time_since_last = (datetime.now() - last_email_sent).total_seconds()
+            if time_since_last < MIN_EMAIL_INTERVAL:
+                logger.warning(f"Rate limited: {time_since_last}s since last email")
+                return False
+
+        # Create password reset URL
+        reset_url = f"{base_url}reset-password?token={reset_token}"
+
+        html_body = f"""
+        <html>
+            <body>
+                <h2>Password Reset Request</h2>
+                <p>Hello {username},</p>
+                <p>You have requested to reset your password for your Contacts API account.</p>
+                <p>Click the link below to reset your password (this link expires in 1 hour):</p>
+                <p><a href="{reset_url}">Reset Password</a></p>
+                <p>Or copy this link: {reset_url}</p>
+                <p>If you did not request this password reset, please ignore this email.</p>
+                <p>For security reasons, this link will expire in 1 hour.</p>
+            </body>
+        </html>
+        """
+
+        message = MessageSchema(
+            subject="Password Reset - Contacts API",
+            recipients=[email],
+            body=html_body,
+            subtype=MessageType.html,
+        )
+
+        fm = FastMail(email_config)
+        await fm.send_message(message)
+
+        last_email_sent = datetime.now()
+        logger.info(f"Password reset email sent to {email}")
+        return True
+
+    except SMTPDataError as err:
+        if "High intensity of connections" in str(err):
+            logger.warning(f"SMTP rate limited: {err}")
+            return False
+        else:
+            logger.error(f"SMTP data error: {err}")
+            return False
+    except Exception as err:
+        logger.error(f"Password reset email failed: {err}")
+        return False

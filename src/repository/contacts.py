@@ -1,3 +1,10 @@
+"""
+Contact repository module.
+
+This module provides database operations for Contact entities,
+including CRUD operations, search functionality, and birthday tracking.
+"""
+
 from datetime import date, timedelta
 from typing import List, Optional
 
@@ -9,6 +16,17 @@ from src.schemas.contacts import ContactCreate, ContactUpdate
 
 
 def get_contact(db: Session, contact_id: int, user: User) -> Optional[Contact]:
+    """
+    Retrieve a specific contact by ID for a given user.
+
+    Args:
+        db (Session): Database session
+        contact_id (int): ID of the contact to retrieve
+        user (User): User who owns the contact
+
+    Returns:
+        Optional[Contact]: The contact if found, None otherwise
+    """
     return (
         db.query(Contact)
         .filter(Contact.id == contact_id, Contact.owner_id == user.id)
@@ -19,6 +37,18 @@ def get_contact(db: Session, contact_id: int, user: User) -> Optional[Contact]:
 def get_contacts(
     db: Session, user: User, skip: int = 0, limit: int = 100
 ) -> List[Contact]:
+    """
+    Retrieve a list of contacts for a user with pagination.
+
+    Args:
+        db (Session): Database session
+        user (User): User who owns the contacts
+        skip (int): Number of records to skip for pagination
+        limit (int): Maximum number of records to return
+
+    Returns:
+        List[Contact]: List of contacts for the user
+    """
     return (
         db.query(Contact)
         .filter(Contact.owner_id == user.id)
@@ -29,6 +59,17 @@ def get_contacts(
 
 
 def search_contacts(db: Session, user: User, query: str) -> List[Contact]:
+    """
+    Search contacts by first name, last name, or email.
+
+    Args:
+        db (Session): Database session
+        user (User): User who owns the contacts
+        query (str): Search query string
+
+    Returns:
+        List[Contact]: List of contacts matching the search criteria
+    """
     return (
         db.query(Contact)
         .filter(
@@ -42,6 +83,16 @@ def search_contacts(db: Session, user: User, query: str) -> List[Contact]:
 
 
 def get_upcoming_birthdays(db: Session, user: User) -> List[Contact]:
+    """
+    Get contacts with birthdays in the next 7 days.
+
+    Args:
+        db (Session): Database session
+        user (User): User who owns the contacts
+
+    Returns:
+        List[Contact]: List of contacts with upcoming birthdays
+    """
     today = date.today()
     next_week = today + timedelta(days=7)
 
@@ -84,6 +135,17 @@ def get_upcoming_birthdays(db: Session, user: User) -> List[Contact]:
 
 
 def create_contact(db: Session, contact: ContactCreate, user: User) -> Contact:
+    """
+    Create a new contact for a user.
+
+    Args:
+        db (Session): Database session
+        contact (ContactCreate): Contact data to create
+        user (User): User who will own the contact
+
+    Returns:
+        Contact: The newly created contact
+    """
     db_contact = Contact(**contact.dict(), owner_id=user.id)
     db.add(db_contact)
     db.commit()
@@ -94,6 +156,18 @@ def create_contact(db: Session, contact: ContactCreate, user: User) -> Contact:
 def update_contact(
     db: Session, contact_id: int, contact: ContactUpdate, user: User
 ) -> Optional[Contact]:
+    """
+    Update an existing contact for a user.
+
+    Args:
+        db (Session): Database session
+        contact_id (int): ID of the contact to update
+        contact (ContactUpdate): Updated contact data
+        user (User): User who owns the contact
+
+    Returns:
+        Optional[Contact]: The updated contact if found and updated, None otherwise
+    """
     db_contact = (
         db.query(Contact)
         .filter(Contact.id == contact_id, Contact.owner_id == user.id)
@@ -109,6 +183,17 @@ def update_contact(
 
 
 def delete_contact(db: Session, contact_id: int, user: User) -> Optional[Contact]:
+    """
+    Delete a contact for a user.
+
+    Args:
+        db (Session): Database session
+        contact_id (int): ID of the contact to delete
+        user (User): User who owns the contact
+
+    Returns:
+        Optional[Contact]: The deleted contact if found and deleted, None otherwise
+    """
     db_contact = (
         db.query(Contact)
         .filter(Contact.id == contact_id, Contact.owner_id == user.id)

@@ -1,3 +1,11 @@
+"""
+Configuration module for the Contacts API application.
+
+This module handles all configuration settings including database connections,
+JWT settings, email configuration, third-party service configurations,
+and environment-specific settings.
+"""
+
 import os
 from dotenv import load_dotenv
 
@@ -6,7 +14,31 @@ load_dotenv()
 
 
 class Settings:
+    """
+    Application settings class.
+
+    This class manages all configuration settings for the application,
+    loading values from environment variables with sensible defaults.
+
+    Attributes:
+        database_url (str): PostgreSQL database connection URL
+        secret_key (str): Secret key for JWT token signing
+        algorithm (str): Algorithm used for JWT token signing
+        access_token_expire_minutes (int): JWT token expiration time in minutes
+        mail_username (str): SMTP username for email service
+        mail_password (str): SMTP password for email service
+        mail_from (str): From address for outgoing emails
+        mail_port (int): SMTP server port
+        mail_server (str): SMTP server hostname
+        cloudinary_name (str): Cloudinary cloud name
+        cloudinary_api_key (str): Cloudinary API key
+        cloudinary_api_secret (str): Cloudinary API secret
+        redis_url (str): Redis connection URL for caching and rate limiting
+        cors_origins (list): List of allowed CORS origins
+    """
+
     def __init__(self):
+        """Initialize settings from environment variables."""
         self.database_url: str = os.getenv(
             "DATABASE_URL", "postgresql://user:password@localhost:5432/contacts_db"
         )
