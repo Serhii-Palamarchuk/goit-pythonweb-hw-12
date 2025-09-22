@@ -184,6 +184,8 @@ poetry run python tests/simple_test.py
 - `POST /api/auth/login` - Логін користувача (отримання JWT токена)
 - `GET /api/auth/confirmed_email/{token}` - Підтвердження email
 - `POST /api/auth/request_email` - Повторне відправлення email для підтвердження
+- `POST /api/auth/request-password-reset` - Запит на скидання пароля
+- `POST /api/auth/reset-password` - Скидання пароля за токеном
 - `GET /api/auth/me` - Отримання інформації про поточного користувача (rate limited: 10/min)
 - `PATCH /api/auth/avatar` - Оновлення аватара користувача
 
