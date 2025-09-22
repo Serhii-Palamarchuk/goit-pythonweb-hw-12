@@ -67,6 +67,54 @@ def read_root():
     return {"message": "Welcome to Contacts API"}
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment monitoring"""
+    health_status = {
+        "status": "healthy",
+        "message": "Contacts API is running",
+        "version": "1.0.0",
+        "services": {"database": "unknown", "redis": "unknown"},
+    }
+
+    # Check database connection
+    try:
+        from src.database.db import get_db
+        from sqlalchemy import text
+
+        db = next(get_db())
+        result = db.execute(text("SELECT 1"))
+        result.fetchone()
+        db.close()
+        health_status["services"]["database"] = "healthy"
+    except Exception as e:
+        health_status["services"]["database"] = f"unhealthy: {str(e)[:50]}"
+        health_status["status"] = "degraded"
+
+    # Check Redis connection
+    try:
+        import redis.asyncio as redis
+
+        redis_client = redis.from_url(settings.redis_url)
+        await redis_client.ping()
+        await redis_client.close()
+        health_status["services"]["redis"] = "healthy"
+    except Exception as e:
+        health_status["services"]["redis"] = f"unhealthy: {str(e)[:50]}"
+        health_status["status"] = "degraded"
+
+    # Overall status
+    services = health_status["services"].values()
+    if all(service.startswith("healthy") for service in services):
+        health_status["status"] = "healthy"
+    elif any(service.startswith("healthy") for service in services):
+        health_status["status"] = "degraded"
+    else:
+        health_status["status"] = "unhealthy"
+
+    return health_status
+
+
 if __name__ == "__main__":
     import uvicorn
 

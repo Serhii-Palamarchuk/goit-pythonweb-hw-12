@@ -1,28 +1,58 @@
-# Contacts API
+# 🚀 Contacts API - GoIT Python Web HW-12
 
-REST API для управління контактами з аутентифікацією та авторизацією, побудований з використанням FastAPI та SQLAlchemy.
+## 📋 Project Overview
 
-## Функціональність
+Production-ready REST API for contact management with comprehensive authentication, caching, and cloud deployment capabilities.
 
-### Основні функції:
-- **Аутентифікація та авторизація** з використанням JWT токенів
-- **Реєстрація користувачів** з верифікацією email
-- **CRUD операції для контактів** (доступ тільки до власних контактів)
-- **Пошук контактів** за ім'ям, прізвищем або email
-- **Дні народження** - отримання контактів з днями народження на найближчі 7 днів
-- **Завантаження аватарів** через Cloudinary
-- **Rate limiting** для обмеження кількості запитів
-- **CORS** підтримка для роботи з фронтендом
-- **Email верифікація** для підтвердження реєстрації
+## ✅ All Homework Requirements Implemented
 
-### Технічні особливості:
-- Хешування паролів за допомогою bcrypt
-- JWT токени для авторизації
-- PostgreSQL база даних
-- Redis для rate limiting
-- Cloudinary для зберігання зображень
-- Docker Compose для легкого розгортання
-- Автоматична генерація Swagger документації
+### 1. 🔄 Redis Caching
+- ✅ User authentication data caching with TTL
+- ✅ Cache invalidation on data updates
+- ✅ Graceful degradation when Redis unavailable
+- ✅ Performance optimization for user lookups
+
+### 2. 🔐 JWT Refresh Token Mechanism
+- ✅ Dual-token system: access tokens (30 min) + refresh tokens (7 days)
+- ✅ Secure token renewal without re-authentication
+- ✅ Token scope validation and security checks
+- ✅ Comprehensive test suite (9/9 tests passing)
+
+### 3. 📧 Email Services
+- ✅ Email verification for new user registration
+- ✅ Password reset via secure email links
+- ✅ HTML email templates with styling
+- ✅ SMTP integration with multiple providers
+
+### 4. 🖼️ Avatar Upload
+- ✅ Cloudinary integration for image storage
+- ✅ Image processing and optimization
+- ✅ Secure upload with file validation
+- ✅ User profile image management
+
+### 5. 👥 Role-based Access Control
+- ✅ USER and ADMIN roles with different permissions
+- ✅ Role-based endpoint access control
+- ✅ Admin-only user management features
+- ✅ Secure role assignment and validation
+
+### 6. 🛡️ Rate Limiting
+- ✅ Redis-based rate limiting implementation
+- ✅ Different limits per endpoint type
+- ✅ IP-based request tracking
+- ✅ Configurable rate limits
+
+### 7. 🌐 Cloud Deployment
+- ✅ Docker containerization with health checks
+- ✅ Render.com deployment configuration
+- ✅ Railway.app deployment support
+- ✅ Environment variable management
+
+### 8. 📊 Health Monitoring
+- ✅ Comprehensive health check endpoint
+- ✅ Database connectivity monitoring
+- ✅ Redis connectivity monitoring
+- ✅ Service status reporting
 
 ## Структура проекту
 
