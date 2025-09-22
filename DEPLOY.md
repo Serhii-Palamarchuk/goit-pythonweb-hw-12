@@ -32,7 +32,11 @@ git push origin main
 MAIL_USERNAME=ваш.email@gmail.com
 MAIL_PASSWORD=пароль-програми-gmail
 MAIL_FROM=ваш.email@gmail.com
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
 ```
+
+💡 **Примітка**: Без email конфігурації буде попередження `MAIL_FROM not configured`, але API працює нормально!
 
 **4. Cloudinary для аватарів (опціонально):**
 ```

@@ -1,5 +1,14 @@
 # 🚀 Contacts API - GoIT Python Web HW-12
 
+## 🌐 Live Demo
+
+**🎯 Deployed Application**: [https://goit-pythonweb-hw-12-k8af.onrender.com](https://goit-pythonweb-hw-12-k8af.onrender.com)
+
+- 📚 **API Documentation**: [/docs](https://goit-pythonweb-hw-12-k8af.onrender.com/docs)
+- ❤️ **Health Check**: [/health](https://goit-pythonweb-hw-12-k8af.onrender.com/health)
+- 🔐 **Authentication**: `/api/auth/signup`, `/api/auth/login`, `/api/auth/refresh`
+- 📊 **Contacts**: `/api/contacts/`
+
 ## 📋 Project Overview
 
 Production-ready REST API for contact management with comprehensive authentication, caching, and cloud deployment capabilities.
@@ -47,6 +56,7 @@ Production-ready REST API for contact management with comprehensive authenticati
 - ✅ Render.com deployment configuration
 - ✅ Railway.app deployment support
 - ✅ Environment variable management
+- ✅ **Production deployment**: [goit-pythonweb-hw-12-k8af.onrender.com](https://goit-pythonweb-hw-12-k8af.onrender.com)
 
 ### 8. 📊 Health Monitoring
 - ✅ Comprehensive health check endpoint
@@ -587,6 +597,34 @@ curl "http://127.0.0.1:8000/api/contacts/birthdays"
 - **flake8** - Лінтинг коду
 
 ## Автор
+## 🌍 Live Application
+
+**🎯 Production URL**: [https://goit-pythonweb-hw-12-k8af.onrender.com](https://goit-pythonweb-hw-12-k8af.onrender.com)
+
+### 🔗 Quick Links:
+- 📖 **API Documentation**: [/docs](https://goit-pythonweb-hw-12-k8af.onrender.com/docs)
+- 💓 **Health Status**: [/health](https://goit-pythonweb-hw-12-k8af.onrender.com/health)
+- 📝 **API Schema**: [/openapi.json](https://goit-pythonweb-hw-12-k8af.onrender.com/openapi.json)
+
+### 🧪 Test Endpoints:
+```bash
+# Register new user
+POST /api/auth/signup
+
+# User login
+POST /api/auth/login
+
+# Refresh JWT tokens
+POST /api/auth/refresh
+
+# Get user contacts
+GET /api/contacts/
+```
+
+---
+
+## 👨‍💻 Автор
+
 Serhii Palamarchuk
 
 Створено в рамках домашнього завдання GoIT Python Web Development
